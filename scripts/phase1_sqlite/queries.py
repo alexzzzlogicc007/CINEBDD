@@ -178,7 +178,6 @@ def query_career_evolution(conn, actor_name: str) -> list:
 def query_top3_by_genre(conn) -> list:
     """
     Pour chaque genre : top 3 des films classés par note moyenne.
-    
     Utilise RANK().
     """
     sql = """
@@ -193,7 +192,7 @@ def query_top3_by_genre(conn) -> list:
                ) AS rank
         FROM genres g
         JOIN movies m ON m.mid = g.mid
-        JOIN ratings r ON r.mid = g.mid
+        JOIN ratings r ON r.mid = m.mid   -- ✔ CORRECTION ICI
     )
     WHERE rank <= 3
     ORDER BY genre, rank;
@@ -251,3 +250,5 @@ def query_custom(conn) -> list:
       OR p.pid = wr.pid;
     """
     return conn.execute(sql).fetchall()
+
+

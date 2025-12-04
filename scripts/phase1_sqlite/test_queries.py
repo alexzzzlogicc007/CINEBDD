@@ -18,6 +18,7 @@ print(query_collaborations(conn, "Tom Hanks")[:10])
 print("\n--- Genres populaires ---")
 print(query_popular_genres(conn)[:10])
 
+
 print("\n--- Évolution carrière Tom Hanks ---")
 print(query_career_evolution(conn, "Tom Hanks"))
 
