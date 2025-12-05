@@ -67,20 +67,16 @@ def query_top_n_films(conn, genre: str, start: int, end: int, n: int) -> list:
 # 3. Acteurs ayant joué plusieurs rôles
 ###############################################
 def query_multi_role_actors(conn) -> list:
-    """
-    Acteurs ayant joué plusieurs rôles dans un même film.
-    (On considère category/job comme rôle)
-    
-    Returns:
-        Liste (nom acteur, titre film, nb_roles)
-    """
     sql = """
-    SELECT pe.name, m.primaryTitle, COUNT(*) AS nb_roles
+    SELECT 
+        pe.name,
+        m.primaryTitle,
+        COUNT(DISTINCT p.category || '-' || IFNULL(p.job, '')) AS nb_roles
     FROM principals p
     JOIN persons pe ON pe.pid = p.pid
     JOIN movies m ON m.mid = p.mid
     GROUP BY p.mid, p.pid
-    HAVING COUNT(*) > 1
+    HAVING COUNT(DISTINCT p.category || '-' || IFNULL(p.job, '')) > 1
     ORDER BY nb_roles DESC;
     """
     return conn.execute(sql).fetchall()
@@ -192,7 +188,7 @@ def query_top3_by_genre(conn) -> list:
                ) AS rank
         FROM genres g
         JOIN movies m ON m.mid = g.mid
-        JOIN ratings r ON r.mid = m.mid   -- ✔ CORRECTION ICI
+        JOIN ratings r ON r.mid = m.mid   
     )
     WHERE rank <= 3
     ORDER BY genre, rank;
