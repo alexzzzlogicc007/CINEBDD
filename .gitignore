@@ -1,0 +1,18 @@
+# --- Databases ---
+data/mongo/
+data/*.db
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Virtual environment ---
+venv/
+.env/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
