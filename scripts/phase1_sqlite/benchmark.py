@@ -7,9 +7,7 @@ def benchmark(func, conn, *args):
     func(conn, *args)
     return (time.perf_counter() - t0) * 1000  # ms
 
-# ----------------------------------------
 # 1) Connexion + création des index
-# ----------------------------------------
 
 conn = sqlite3.connect("data/imdb.db")
 cur = conn.cursor()
@@ -31,9 +29,8 @@ for sql in indexes:
 conn.commit()
 print("Index créés.\n")
 
-# ----------------------------------------
 # 2) Benchmark AVEC index
-# ----------------------------------------
+
 
 print("=== Benchmark AVEC INDEX ===")
 

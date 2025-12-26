@@ -3,12 +3,10 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017/")
 db = client["imdb"]
 
-MAX_TIME_MS = 15000  # 15 secondes
+MAX_TIME_MS = 600000   # 15 secondes
 
 
-###############################################
 # 1. Filmographie d’un acteur
-###############################################
 def mongo_actor_filmography(actor_name):
     pipeline = [
         {"$match": {"name": {"$regex": actor_name, "$options": "i"}}},
@@ -38,9 +36,7 @@ def mongo_actor_filmography(actor_name):
     return list(db.persons.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 2. Top N films d’un genre sur une période
-###############################################
 def mongo_top_n_films(genre, start, end, n):
     pipeline = [
         {"$match": {"genre": genre}},
@@ -71,9 +67,7 @@ def mongo_top_n_films(genre, start, end, n):
     return list(db.genres.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 3. Acteurs ayant joué plusieurs rôles
-###############################################
 def mongo_multi_role_actors():
     pipeline = [
         {"$group": {
@@ -115,9 +109,9 @@ def mongo_multi_role_actors():
     return list(db.principals.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
+
 # 4. Collaborations réalisateur / acteur
-###############################################
+
 def mongo_collaborations(actor_name):
     pipeline = [
         {"$match": {"name": {"$regex": actor_name, "$options": "i"}}},
@@ -151,9 +145,7 @@ def mongo_collaborations(actor_name):
     return list(db.persons.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 5. Genres populaires
-###############################################
 def mongo_popular_genres():
     pipeline = [
         {"$lookup": {
@@ -183,9 +175,8 @@ def mongo_popular_genres():
     return list(db.genres.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
+
 # 6. Évolution de carrière par décennie
-###############################################
 def mongo_career_evolution(actor_name):
     pipeline = [
         {"$match": {"name": {"$regex": actor_name, "$options": "i"}}},
@@ -235,9 +226,7 @@ def mongo_career_evolution(actor_name):
     return list(db.persons.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 7. Top 3 films par genre
-###############################################
 def mongo_top3_by_genre():
     pipeline = [
         {"$lookup": {
@@ -276,9 +265,7 @@ def mongo_top3_by_genre():
     return list(db.genres.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 8. Carrière propulsée
-###############################################
 def mongo_career_boost():
     pipeline = [
         {"$lookup": {
@@ -312,9 +299,7 @@ def mongo_career_boost():
     return list(db.principals.aggregate(pipeline, maxTimeMS=MAX_TIME_MS))
 
 
-###############################################
 # 9. Requête libre
-###############################################
 def mongo_custom():
     pipeline = [
         {"$lookup": {

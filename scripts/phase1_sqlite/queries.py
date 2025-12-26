@@ -1,8 +1,6 @@
 import sqlite3
 
-###############################################
 # 1. Filmographie d’un acteur
-###############################################
 def query_actor_filmography(conn, actor_name: str) -> list:
     """
     Retourne tous les films dans lesquels un acteur donné a joué.
@@ -33,9 +31,8 @@ def query_actor_filmography(conn, actor_name: str) -> list:
     return conn.execute(sql, (f"%{actor_name}%",)).fetchall()
 
 
-###############################################
 # 2. Top N films d’un genre sur une période
-###############################################
+
 def query_top_n_films(conn, genre: str, start: int, end: int, n: int) -> list:
     """
     Retourne les N meilleurs films d'un genre donné entre deux années.
@@ -63,9 +60,8 @@ def query_top_n_films(conn, genre: str, start: int, end: int, n: int) -> list:
     return conn.execute(sql, (genre, start, end, n)).fetchall()
 
 
-###############################################
 # 3. Acteurs ayant joué plusieurs rôles
-###############################################
+
 def query_multi_role_actors(conn) -> list:
     sql = """
     SELECT 
@@ -82,9 +78,7 @@ def query_multi_role_actors(conn) -> list:
     return conn.execute(sql).fetchall()
 
 
-###############################################
 # 4. Collaborations réalisateur / acteur
-###############################################
 def query_collaborations(conn, actor_name: str) -> list:
     """
     Liste des réalisateurs ayant travaillé avec un acteur donné,
@@ -111,9 +105,7 @@ def query_collaborations(conn, actor_name: str) -> list:
     return conn.execute(sql, (f"%{actor_name}%",)).fetchall()
 
 
-###############################################
 # 5. Genres populaires
-###############################################
 def query_popular_genres(conn) -> list:
     """
     Genres ayant une note moyenne > 7.0 et plus de 50 films.
@@ -135,9 +127,8 @@ def query_popular_genres(conn) -> list:
     return conn.execute(sql).fetchall()
 
 
-###############################################
 # 6. Évolution de carrière d’un acteur (par décennie)
-###############################################
+
 def query_career_evolution(conn, actor_name: str) -> list:
     """
     Nombre de films par décennie pour un acteur donné,
@@ -168,9 +159,8 @@ def query_career_evolution(conn, actor_name: str) -> list:
     return conn.execute(sql, (f"%{actor_name}%",)).fetchall()
 
 
-###############################################
+
 # 7. Classement des 3 meilleurs films par genre
-###############################################
 def query_top3_by_genre(conn) -> list:
     """
     Pour chaque genre : top 3 des films classés par note moyenne.
@@ -196,9 +186,7 @@ def query_top3_by_genre(conn) -> list:
     return conn.execute(sql).fetchall()
 
 
-###############################################
 # 8. Carrière propulsée
-###############################################
 def query_career_boost(conn) -> list:
     """
     Personnes ayant percé grâce à un film.
@@ -223,9 +211,8 @@ def query_career_boost(conn) -> list:
     return conn.execute(sql).fetchall()
 
 
-###############################################
 # 9. Requête libre
-###############################################
+
 def query_custom(conn) -> list:
     """
     Requête libre :
