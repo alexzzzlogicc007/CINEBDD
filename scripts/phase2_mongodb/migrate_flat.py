@@ -87,7 +87,7 @@ from pymongo import MongoClient
 
 
 SQLITE_DB_PATH = "data/imdb.db"
-MONGO_URI = "mongodb://localhost:27017/"
+MONGO_URI = "mongodb://localhost:27017/?replicaSet=rs0"
 MONGO_DB_NAME = "imdb"
 
 
