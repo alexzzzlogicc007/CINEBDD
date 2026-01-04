@@ -27,7 +27,16 @@ const genreData = [{% for g, c in genres %}{{ c }},{% endfor %}];
 
 new Chart(document.getElementById('genreChart'), {
     type: 'bar',
-    data: { labels: genreLabels, datasets: [{ data: genreData }] }
+    data: { labels: genreLabels, datasets: [{ data: genreData }] },
+    options: {
+        plugins: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Nombre de films par genre"
+            }
+        }
+    }
 });
 
 const decadeLabels = [{% for d, c in decades %}"{{ d }}",{% endfor %}];
@@ -35,7 +44,16 @@ const decadeData = [{% for d, c in decades %}{{ c }},{% endfor %}];
 
 new Chart(document.getElementById('decadeChart'), {
     type: 'line',
-    data: { labels: decadeLabels, datasets: [{ data: decadeData }] }
+    data: { labels: decadeLabels, datasets: [{ data: decadeData }] },
+    options: {
+        plugins: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Films par décennie"
+            }
+        }
+    }
 });
 
 const ratingLabels = [{% for r, c in ratings %}"{{ r }}",{% endfor %}];
@@ -43,8 +61,41 @@ const ratingData = [{% for r, c in ratings %}{{ c }},{% endfor %}];
 
 new Chart(document.getElementById('ratingChart'), {
     type: 'bar',
-    data: { labels: ratingLabels, datasets: [{ data: ratingData }] }
+    data: {
+        labels: ratingLabels,
+        datasets: [{
+            label: 'Nombre de films',
+            data: ratingData,
+            barPercentage: 1.0,
+            categoryPercentage: 1.0
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Histogramme de la distribution des notes"
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: "Note (classes)"
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: "Nombre de films"
+                }
+            }
+        }
+    }
 });
+
 </script>
 
 {% endblock %}

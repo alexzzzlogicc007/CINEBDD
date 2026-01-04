@@ -33,11 +33,12 @@ def top_genres(limit=5):
 
 
 def get_movie_by_id(movie_id: str):
-    """
-    Retourne un film complet depuis la collection movies_complete
-    (1 requête MongoDB).
-    """
-    return _db.movies_complete.find_one({"_id": movie_id})
+    movie = _db.movies_complete.find_one({"_id": movie_id})
+
+    if movie and "runtime" in movie:
+        movie["runtimeMinutes"] = movie["runtime"]
+
+    return movie
 
     # Si tu utilises _id à la place :
     # return _db.movies_complete.find_one({"_id": movie_id})

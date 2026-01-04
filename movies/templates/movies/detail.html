@@ -6,6 +6,9 @@
 
 <p class="text-muted">
     {{ movie.year }}
+    {% if movie.runtimeMinutes %}
+        · ⏱ {{ movie.runtimeMinutes }} min
+    {% endif %}
     {% if movie.rating %}
         · ⭐ {{ movie.rating.average }} ({{ movie.rating.votes }} votes)
     {% endif %}
@@ -58,5 +61,7 @@
         </div>
     {% endfor %}
 </div>
+
+
 
 {% endblock %}

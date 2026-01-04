@@ -25,7 +25,7 @@ def count_actors():
         return conn.execute("""
             SELECT COUNT(DISTINCT pid)
             FROM principals
-            WHERE category = 'actor'
+            WHERE category IN ('actor','actress')
         """).fetchone()[0]
 
 
@@ -70,6 +70,9 @@ def get_movies(filters, sort, page, page_size=20):
     where = []
     params = []
 
+    # --- uniquement des films ---
+    where.append("m.titleType = 'movie'")
+
     # --- filtres ---
     if filters.get("year_min"):
         where.append("m.startYear >= ?")
@@ -83,7 +86,11 @@ def get_movies(filters, sort, page, page_size=20):
         where.append("r.averageRating >= ?")
         params.append(filters["min_rating"])
 
-    where_sql = "WHERE " + " AND ".join(where) if where else ""
+    if filters.get("genre"):
+        where.append("g.genre = ?")
+        params.append(filters["genre"])
+
+    where_sql = "WHERE " + " AND ".join(where)
 
     # --- tri ---
     order_map = {
@@ -91,18 +98,23 @@ def get_movies(filters, sort, page, page_size=20):
         "year": "m.startYear",
         "rating": "r.averageRating",
     }
-    order_by = order_map.get(sort.get("field", "title"), "m.primaryTitle")
+
+    order_by = order_map.get(sort.get("field", "title"))
     direction = "DESC" if sort.get("direction") == "desc" else "ASC"
 
     sql = f"""
-        SELECT m.mid,
-               m.primaryTitle,
-               m.startYear,
-               r.averageRating
+        SELECT DISTINCT
+            m.mid,
+            m.primaryTitle,
+            m.startYear,
+            r.averageRating
         FROM movies m
         LEFT JOIN ratings r ON m.mid = r.mid
+        LEFT JOIN genres g ON m.mid = g.mid
         {where_sql}
-        ORDER BY {order_by} {direction}
+        ORDER BY
+            CASE WHEN {order_by} IS NULL THEN 1 ELSE 0 END,
+            CAST({order_by} AS REAL) {direction}
         LIMIT ? OFFSET ?
     """
 
@@ -115,6 +127,9 @@ def get_movies(filters, sort, page, page_size=20):
 def count_movies_filtered(filters):
     where = []
     params = []
+    # --- filtres ---
+    where.append("m.titleType = 'movie'")
+
 
     if filters.get("year_min"):
         where.append("m.startYear >= ?")
@@ -128,12 +143,18 @@ def count_movies_filtered(filters):
         where.append("r.averageRating >= ?")
         params.append(filters["min_rating"])
 
+    if filters.get("genre"):
+        where.append("g.genre = ?")
+        params.append(filters["genre"])
+
+
     where_sql = "WHERE " + " AND ".join(where) if where else ""
 
     sql = f"""
-        SELECT COUNT(*)
+        SELECT COUNT(DISTINCT m.mid)
         FROM movies m
         LEFT JOIN ratings r ON m.mid = r.mid
+        LEFT JOIN genres g ON m.mid=g.mid
         {where_sql}
     """
 
@@ -213,3 +234,11 @@ def top_actors(limit=10):
             ORDER BY count DESC
             LIMIT ?
         """, (limit,)).fetchall()
+
+def get_all_genres():
+    sql = """
+        SELECT DISTINCT genre
+        FROM genres
+        ORDER BY genre
+    """
+    return execute_query(sql)
