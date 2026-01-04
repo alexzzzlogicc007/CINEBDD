@@ -88,13 +88,12 @@ data/csv/
 ```
 
 # GUIDE D'EXÉCUTION  
-*(Ordre Chronologique Impératif)*
 
-Suivez **scrupuleusement** ces étapes pour initialiser le projet.
+Suivez ces étapes pour initialiser le projet.
 
 ---
 
-## Phase 1 : Construction de la Base Relationnelle (SQLite)
+## Phase 1 : Construction de la Base Relationnelle 
 
 Cette phase construit l’architecture SQL et importe les données brutes.
 
@@ -112,14 +111,14 @@ Ce script lit les fichiers CSV du dossier `data/csv/` et peuple la base de donn�
 python scripts/phase1_sqlite/import_data.py
 ```
 
-### 3. Vérification *(Optionnel)*
+### 3. Vérification
 Lancez des requêtes SQL de test.
 
 ```bash
 python scripts/phase1_sqlite/queries.py
 ```
 
-### 4. Benchmark *(Optionnel)*
+### 4. Benchmark 
 Mesure les performances avec et sans index SQLite.
 
 ```bash
@@ -128,7 +127,7 @@ python scripts/phase1_sqlite/benchmark.py
 
 ---
 
-## Phase 2 : Migration et Structuration NoSQL (MongoDB)
+## Phase 2 : Migration et Structuration NoSQL 
 
 Cette phase transforme le modèle relationnel en modèle orienté documents.  
 **Prérequis :** une instance MongoDB active sur le port `27017`.
@@ -140,14 +139,14 @@ Vérifie que Python peut communiquer avec MongoDB.
 python scripts/phase2_mongodb/test_connection.py
 ```
 
-### 2. Migration Initiale *(Flat)*
-Nettoyage de la base SQLite (clés étrangères orphelines), puis migration vers des collections MongoDB simples.
+### 2. Migration Initiale 
+Nettoyage de la base SQLite, puis migration vers des collections MongoDB simples.
 
 ```bash
 python scripts/phase2_mongodb/migrate_flat.py
 ```
 
-### 3. Structuration des Données *(Nested)*
+### 3. Structuration des Données 
 Transformation des collections plates en une collection `movies_complete` optimisée pour le web.
 
 ```bash
@@ -163,9 +162,9 @@ python scripts/phase2_mongodb/compare_performance.py
 
 ---
 
-## Phase 3 : Cluster Haute Disponibilité (Replica Set)
+## Phase 3 : Cluster Haute Disponibilité  
 
-Transformation d’une instance MongoDB unique en un cluster de **3 nœuds** *(Replica Set)*.
+Transformation d’une instance MongoDB unique en un cluster de **3 nœuds**.
 
 ### 1. Création des dossiers de stockage
 
@@ -217,7 +216,7 @@ python scripts/phase3_replica/test_failover.py
 
 ---
 
-## Phase 4 : Interface Web (Django)
+## Phase 4 : Interface Web 
 
 ### 1. Migrations Django
 
