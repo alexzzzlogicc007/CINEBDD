@@ -2,13 +2,18 @@ from pymongo import MongoClient
 import time
 
 
+# ============================================================
 # Connexion MongoDB
+# ============================================================
 client = MongoClient("mongodb://localhost:27017/")
 db = client["imdb"]
 
-#  Création de la collection movies_complete (DENORMALISÉE)
+
+# ============================================================
+# Création de la collection movies_complete (DENORMALISÉE)
+# ============================================================
 def create_movies_complete():
-    print("\n Création de la collection movies_complete (échantillon limité)...")
+    print("\nCréation de la collection movies_complete (TOUS les films)...")
 
     start = time.perf_counter()
 
@@ -17,13 +22,18 @@ def create_movies_complete():
 
     pipeline = [
 
-        # LIMITE EXPLICITE (ESSENTIELLE)
-        # Échantillon représentatif, pas toute IMDb
-        {"$limit": 500},
+        # ----------------------------------------------------
+        # Garder uniquement les vrais films
+        # ----------------------------------------------------
+        {
+            "$match": {
+                "titleType": "movie"
+            }
+        },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Genres
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$lookup": {
                 "from": "genres",
@@ -33,21 +43,21 @@ def create_movies_complete():
             }
         },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Ratings
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$lookup": {
                 "from": "ratings",
                 "localField": "mid",
                 "foreignField": "mid",
-                "as": "rating"
+                "as": "rating_arr"
             }
         },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Directors
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$lookup": {
                 "from": "directors",
@@ -65,9 +75,9 @@ def create_movies_complete():
             }
         },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Cast
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$lookup": {
                 "from": "principals",
@@ -85,9 +95,9 @@ def create_movies_complete():
             }
         },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Writers
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$lookup": {
                 "from": "writers",
@@ -105,9 +115,9 @@ def create_movies_complete():
             }
         },
 
-        # ----------------------------
-        # Projection finale (DOCUMENT STRUCTURÉ)
-        # ----------------------------
+        # ----------------------------------------------------
+        # Projection finale (DOCUMENT STRUCTURÉ CONFORME)
+        # ----------------------------------------------------
         {
             "$project": {
                 "_id": "$mid",
@@ -118,8 +128,8 @@ def create_movies_complete():
                 "genres": "$genres.genre",
 
                 "rating": {
-                    "average": {"$arrayElemAt": ["$rating.averageRating", 0]},
-                    "votes": {"$arrayElemAt": ["$rating.numVotes", 0]}
+                    "average": { "$arrayElemAt": ["$rating_arr.averageRating", 0] },
+                    "votes": { "$arrayElemAt": ["$rating_arr.numVotes", 0] }
                 },
 
                 "directors": {
@@ -140,7 +150,27 @@ def create_movies_complete():
                         "in": {
                             "person_id": "$$c.pid",
                             "ordering": "$$c.ordering",
-                            "characters": "$$c.characters"
+                            "characters": "$$c.characters",
+                            "name": {
+                                "$arrayElemAt": [
+                                    {
+                                        "$map": {
+                                            "input": {
+                                                "$filter": {
+                                                    "input": "$cast_persons",
+                                                    "as": "p",
+                                                    "cond": {
+                                                        "$eq": ["$$p.pid", "$$c.pid"]
+                                                    }
+                                                }
+                                            },
+                                            "as": "cp",
+                                            "in": "$$cp.name"
+                                        }
+                                    },
+                                    0
+                                ]
+                            }
                         }
                     }
                 },
@@ -158,9 +188,9 @@ def create_movies_complete():
             }
         },
 
-        # ----------------------------
+        # ----------------------------------------------------
         # Création de la collection finale
-        # ----------------------------
+        # ----------------------------------------------------
         {
             "$out": "movies_complete"
         }
@@ -171,74 +201,13 @@ def create_movies_complete():
     elapsed = time.perf_counter() - start
     count = db.movies_complete.count_documents({})
 
-    print(f"movies_complete créée")
-    print(f"   → Documents : {count}")
-    print(f"   → Temps total : {elapsed:.2f} secondes")
+    print("movies_complete créée")
+    print(f" → Documents : {count}")
+    print(f" → Temps total : {elapsed:.2f} secondes")
 
 
 # ============================================================
-# Accès à un film — modèle PLAT (N requêtes)
-# ============================================================
-def get_movie_flat(mid):
-    start = time.perf_counter()
-
-    movie = db.movies.find_one({"mid": mid})
-    genres = list(db.genres.find({"mid": mid}))
-    rating = db.ratings.find_one({"mid": mid})
-    cast = list(db.principals.find({"mid": mid}))
-    directors = list(db.directors.find({"mid": mid}))
-    writers = list(db.writers.find({"mid": mid}))
-
-    elapsed = time.perf_counter() - start
-    return elapsed, {
-        "movie": movie,
-        "genres": genres,
-        "rating": rating,
-        "cast": cast,
-        "directors": directors,
-        "writers": writers
-    }
-
-
-# ============================================================
-# Accès à un film — modèle STRUCTURÉ (1 requête)
-# ============================================================
-def get_movie_structured(mid):
-    start = time.perf_counter()
-    movie = db.movies_complete.find_one({"_id": mid})
-    elapsed = time.perf_counter() - start
-    return elapsed, movie
-
-
-# ============================================================
-#  Comparaison taille de stockage
-# ============================================================
-def compare_storage_size():
-    flat_size = db.command("collstats", "movies")["size"]
-    structured_size = db.command("collstats", "movies_complete")["size"]
-
-    print("\n Taille des collections :")
-    print(f"movies (plat)          : {flat_size / 1024 / 1024:.2f} MB")
-    print(f"movies_complete        : {structured_size / 1024 / 1024:.2f} MB")
-
-
-# ============================================================
-# Point d’entrée principal
+# Point d’entrée du script
 # ============================================================
 if __name__ == "__main__":
-    MID_TEST = "tt0111161"  # Shawshank Redemption
-
-    # 1. Création collection structurée
     create_movies_complete()
-
-    # 2. Comparaison temps d’accès
-    print("\n #Comparaison du temps d’accès à un film complet")
-
-    flat_time, _ = get_movie_flat(MID_TEST)
-    structured_time, _ = get_movie_structured(MID_TEST)
-
-    print(f"Modèle plat (N requêtes)     : {flat_time * 1000:.2f} ms")
-    print(f"Modèle structuré (1 requête): {structured_time * 1000:.2f} ms")
-
-    # 3. Comparaison taille
-    compare_storage_size()

@@ -1,6 +1,13 @@
 from django.urls import path
-from .views import stats_view
+from . import views
+
+app_name = "movies"
 
 urlpatterns = [
-    path("stats/", stats_view),
+    path("", views.home, name="home"),
+    path("movies/", views.movie_list, name="movie_list"),
+    path("movies/<str:movie_id>/", views.movie_detail, name="movie_detail"),
+    path("search/", views.search, name="search"),
+    path("stats/", views.stats, name="stats"),
+
 ]

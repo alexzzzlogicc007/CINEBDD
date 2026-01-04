@@ -56,11 +56,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # DATABASE SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "data" / "imdb.db",
     }
 }
+
 
 # MongoDB (Replica Set)
 MONGO_URI = "mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0"

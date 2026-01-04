@@ -1,0 +1,50 @@
+{% extends "movies/base.html" %}
+
+{% block content %}
+<h1 class="mb-4">📊 Statistiques</h1>
+
+<h3>🎭 Films par genre</h3>
+<canvas id="genreChart"></canvas>
+
+<h3 class="mt-5">📈 Films par décennie</h3>
+<canvas id="decadeChart"></canvas>
+
+<h3 class="mt-5">📉 Distribution des notes</h3>
+<canvas id="ratingChart"></canvas>
+
+<h3 class="mt-5">👥 Top 10 acteurs</h3>
+<ul>
+    {% for name, count in actors %}
+        <li>{{ name }} — {{ count }} films</li>
+    {% endfor %}
+</ul>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const genreLabels = [{% for g, c in genres %}"{{ g }}",{% endfor %}];
+const genreData = [{% for g, c in genres %}{{ c }},{% endfor %}];
+
+new Chart(document.getElementById('genreChart'), {
+    type: 'bar',
+    data: { labels: genreLabels, datasets: [{ data: genreData }] }
+});
+
+const decadeLabels = [{% for d, c in decades %}"{{ d }}",{% endfor %}];
+const decadeData = [{% for d, c in decades %}{{ c }},{% endfor %}];
+
+new Chart(document.getElementById('decadeChart'), {
+    type: 'line',
+    data: { labels: decadeLabels, datasets: [{ data: decadeData }] }
+});
+
+const ratingLabels = [{% for r, c in ratings %}"{{ r }}",{% endfor %}];
+const ratingData = [{% for r, c in ratings %}{{ c }},{% endfor %}];
+
+new Chart(document.getElementById('ratingChart'), {
+    type: 'bar',
+    data: { labels: ratingLabels, datasets: [{ data: ratingData }] }
+});
+</script>
+
+{% endblock %}

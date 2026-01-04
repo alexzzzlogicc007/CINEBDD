@@ -1,0 +1,50 @@
+{% extends "movies/base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">Bienvenue sur CinéExplorer 🎬</h1>
+
+<div class="row text-center mb-4">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h3>{{ nb_movies }}</h3>
+            <p>Films</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h3>{{ nb_actors }}</h3>
+            <p>Acteurs</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h3>{{ nb_directors }}</h3>
+            <p>Réalisateurs</p>
+        </div>
+    </div>
+</div>
+
+<h2>⭐ Top 10 des films les mieux notés</h2>
+<ul class="list-group mb-4">
+    {% for movie in top_movies %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ movie.1 }} ({{ movie.2 }})</span>
+            <strong>{{ movie.3 }}</strong>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>🎲 Films au hasard</h2>
+<div class="row">
+    {% for movie in random_movies %}
+        <div class="col-md-4 mb-3">
+            <div class="card p-2">
+                <strong>{{ movie.1 }}</strong>
+                <small>{{ movie.2 }}</small>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

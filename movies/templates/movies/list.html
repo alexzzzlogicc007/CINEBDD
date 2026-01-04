@@ -1,0 +1,80 @@
+{% extends "movies/base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">🎬 Liste des films</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col">
+        <input type="number" name="year_min" class="form-control"
+               placeholder="Année min" value="{{ filters.year_min }}">
+    </div>
+    <div class="col">
+        <input type="number" name="year_max" class="form-control"
+               placeholder="Année max" value="{{ filters.year_max }}">
+    </div>
+    <div class="col">
+        <input type="number" step="0.1" name="min_rating" class="form-control"
+               placeholder="Note min" value="{{ filters.min_rating }}">
+    </div>
+    <div class="col">
+        <select name="sort" class="form-select">
+            <option value="title">Titre</option>
+            <option value="year">Année</option>
+            <option value="rating">Note</option>
+        </select>
+    </div>
+    <div class="col">
+        <select name="dir" class="form-select">
+            <option value="asc">ASC</option>
+            <option value="desc">DESC</option>
+        </select>
+    </div>
+    <div class="col">
+        <button class="btn btn-primary">Filtrer</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <tr>
+        <th>Titre</th>
+        <th>Année</th>
+        <th>Note</th>
+    </tr>
+    {% for m in movies %}
+    <tr>
+        <td>
+            <a href="/movies/{{ m.0 }}/">{{ m.1 }}</a>
+        </td>
+        <td>{{ m.2 }}</td>
+        <td>{{ m.3|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<nav>
+<ul class="pagination flex-wrap">
+
+    {% if page > 1 %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ page|add:-1 }}">«</a>
+    </li>
+    {% endif %}
+
+    {% for p in page_range %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+    </li>
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ page|add:1 }}">»</a>
+    </li>
+    {% endif %}
+
+</ul>
+</nav>
+
+
+{% endblock %}

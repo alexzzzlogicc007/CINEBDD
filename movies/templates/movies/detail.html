@@ -1,0 +1,62 @@
+{% extends "movies/base.html" %}
+
+{% block content %}
+
+<h1 class="mb-2">{{ movie.title }}</h1>
+
+<p class="text-muted">
+    {{ movie.year }}
+    {% if movie.rating %}
+        · ⭐ {{ movie.rating.average }} ({{ movie.rating.votes }} votes)
+    {% endif %}
+</p>
+
+<hr>
+
+<h3>🎭 Casting</h3>
+<ul>
+    {% for actor in movie.cast %}
+        <li>
+            {{ actor.name }} (ordre {{ actor.ordering }})
+        </li>
+    {% empty %}
+        <li>Aucun casting disponible</li>
+    {% endfor %}
+</ul>
+
+<h3>🎬 Réalisateurs</h3>
+<ul>
+    {% for d in movie.directors %}
+        <li>{{ d.name }}</li>
+    {% empty %}
+        <li>Aucun réalisateur</li>
+    {% endfor %}
+</ul>
+
+<h3>✍️ Scénaristes</h3>
+<ul>
+    {% for w in movie.writers %}
+        <li>{{ w.name }}</li>
+    {% empty %}
+        <li>Aucun scénariste</li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h3>🎥 Films similaires</h3>
+<div class="row">
+    {% for m in similar_movies %}
+        <div class="col-md-4 mb-2">
+            <a href="/movies/{{ m.mid }}/">
+                {{ m.title }} ({{ m.year }})
+            </a>
+        </div>
+    {% empty %}
+        <div class="col-12 text-muted">
+            Aucun film similaire
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

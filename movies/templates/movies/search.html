@@ -1,0 +1,40 @@
+{% extends "movies/base.html" %}
+{% block content %}
+
+<h2>🔍 Résultats pour "{{ query }}"</h2>
+
+{% if not query %}
+<p class="text-muted">Veuillez entrer un terme de recherche.</p>
+{% endif %}
+
+<hr>
+
+<h3>🎬 Films</h3>
+{% if movies %}
+<ul>
+    {% for m in movies %}
+        <li>
+            <a href="/movies/{{ m.mid }}/">
+                {{ m.primaryTitle }} ({{ m.startYear }})
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Aucun film trouvé.</p>
+{% endif %}
+
+<hr>
+
+<h3>👤 Personnes</h3>
+{% if persons %}
+<ul>
+    {% for p in persons %}
+        <li>{{ p.name }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Aucune personne trouvée.</p>
+{% endif %}
+
+{% endblock %}
