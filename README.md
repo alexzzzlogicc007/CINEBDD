@@ -87,58 +87,156 @@ Placer les fichiers CSV IMDB dans :
 data/csv/
 ```
 
+# GUIDE D'EXÉCUTION  
+*(Ordre Chronologique Impératif)*
+
+Suivez **scrupuleusement** ces étapes pour initialiser le projet.
+
 ---
 
-## Phase 1 – SQLite
+## Phase 1 : Construction de la Base Relationnelle (SQLite)
+
+Cette phase construit l’architecture SQL et importe les données brutes.
+
+### 1. Création du Schéma
+Ce script crée les tables vides avec les types corrects et les contraintes.
 
 ```bash
-cd scripts/phase1_sqlite
-python create_schema.py
-python import_data.py
-python queries.py
-python benchmark.py
+python scripts/phase1_sqlite/create_schema.py
+```
+
+### 2. Importation des Données
+Ce script lit les fichiers CSV du dossier `data/csv/` et peuple la base de données SQLite.
+
+```bash
+python scripts/phase1_sqlite/import_data.py
+```
+
+### 3. Vérification *(Optionnel)*
+Lancez des requêtes SQL de test.
+
+```bash
+python scripts/phase1_sqlite/queries.py
+```
+
+### 4. Benchmark *(Optionnel)*
+Mesure les performances avec et sans index SQLite.
+
+```bash
+python scripts/phase1_sqlite/benchmark.py
 ```
 
 ---
 
-## Phase 2 – MongoDB (Standalone)
+## Phase 2 : Migration et Structuration NoSQL (MongoDB)
+
+Cette phase transforme le modèle relationnel en modèle orienté documents.  
+**Prérequis :** une instance MongoDB active sur le port `27017`.
+
+### 1. Test de Connexion
+Vérifie que Python peut communiquer avec MongoDB.
 
 ```bash
-mongod --dbpath ./data/mongo/standalone
-cd scripts/phase2_mongodb
-python migrate_flat.py
-python migrate_structured.py
-python compare_performance.py
+python scripts/phase2_mongodb/test_connection.py
+```
+
+### 2. Migration Initiale *(Flat)*
+Nettoyage de la base SQLite (clés étrangères orphelines), puis migration vers des collections MongoDB simples.
+
+```bash
+python scripts/phase2_mongodb/migrate_flat.py
+```
+
+### 3. Structuration des Données *(Nested)*
+Transformation des collections plates en une collection `movies_complete` optimisée pour le web.
+
+```bash
+python scripts/phase2_mongodb/migrate_structured.py
+```
+
+### 4. Benchmark Comparatif
+Comparaison des performances entre le modèle **Flat** et le modèle **Structured**.
+
+```bash
+python scripts/phase2_mongodb/compare_performance.py
 ```
 
 ---
 
-## Phase 3 – MongoDB Replica Set
+## Phase 3 : Cluster Haute Disponibilité (Replica Set)
+
+Transformation d’une instance MongoDB unique en un cluster de **3 nœuds** *(Replica Set)*.
+
+### 1. Création des dossiers de stockage
 
 ```bash
-mongod --replSet rs0 --port 27017 --dbpath ./data/mongo/db-1 --bind_ip localhost
-mongod --replSet rs0 --port 27018 --dbpath ./data/mongo/db-2 --bind_ip localhost
-mongod --replSet rs0 --port 27019 --dbpath ./data/mongo/db-3 --bind_ip localhost
+mkdir data/mongo/db-1
+mkdir data/mongo/db-2
+mkdir data/mongo/db-3
 ```
 
+### 2. Démarrage des Nœuds
+
+**Terminal 1**
 ```bash
-cd scripts/phase3_replica
-python init_replica.py
-python import_to_replica.py
-python test_failover.py
+mongod --replSet rs0 --port 27017 --dbpath data/mongo/db-1 --bind_ip localhost
+```
+
+**Terminal 2**
+```bash
+mongod --replSet rs0 --port 27018 --dbpath data/mongo/db-2 --bind_ip localhost
+```
+
+**Terminal 3**
+```bash
+mongod --replSet rs0 --port 27019 --dbpath data/mongo/db-3 --bind_ip localhost
+```
+
+### 3. Initialisation du Cluster
+
+```bash
+mongosh --port 27017
+```
+
+```javascript
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "localhost:27017" },
+    { _id: 1, host: "localhost:27018" },
+    { _id: 2, host: "localhost:27019" }
+  ]
+})
+```
+
+### 4. Test de Failover
+
+```bash
+python scripts/phase3_replica/test_failover.py
 ```
 
 ---
 
-## Phase 4 – Application Web Django
+## Phase 4 : Interface Web (Django)
+
+### 1. Migrations Django
+
+```bash
+python manage.py migrate
+```
+
+### 2. Lancement du serveur
 
 ```bash
 python manage.py runserver
 ```
 
-Accessible sur : http://127.0.0.1:8000
+### 3. Accès navigateur
 
----
+```
+http://127.0.0.1:8000/
+```
+
 
 ## Pages disponibles
 
